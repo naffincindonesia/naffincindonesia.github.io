@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head><title>IKEA CORS Hunter - naffinc</title>
+<style>body{background:#0f0f0f;color:#0f0;font-family:monospace;padding:20px}.box{max-width:950px;margin:auto;background:#1a1a1a;padding:20px;border-radius:8px}button{background:#0058a3;color:#fff;padding:10px 16px;border:none;border-radius:4px;cursor:pointer;margin:4px}input{width:100%;padding:8px;background:#000;color:#0f0;border:1px solid #333}pre{background:#000;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:700px;overflow:auto}</style>
+</head>
+<body>
+<div class="box">
+<h2 style="color:#ffcc00">IKEA CORS Hunter - High Severity</h2>
+<p>Target list for bugs.ikea.com - Testing GET CORS</p>
+<button onclick="hunt()">Start Hunt - GET CORS</button>
+<pre id="log">Ready to hunt High CORS. Click Start Hunt.
+</pre>
+</div>
+<script>
+const targets = [
+ 'https://api.ikea.com',
+ 'https://www.ikea.com/se/en/api',
+ 'https://family.ikea.com',
+ 'https://order.ikea.com',
+ 'https://www.ikea.com/id/en/api',
+ 'https://profile.ikea.com',
+ 'https://api.ingka.ikea.com'
+];
+const logEl = document.getElementById('log');
+function log(m){logEl.textContent+='\n'+m; console.log(m);}
+async function hunt(){
+ logEl.textContent='Hunting from origin: '+location.origin+'\nLooking for GET with ACAO: * or ACAO: '+location.origin+' + credentials\n';
+ for(let base of targets){
+   const url = base;
+   log('\n--- '+url+' ---');
+   try{
+     const res = await fetch(url, {method:'GET', mode:'cors', credentials:'include'});
+     const acao = res.headers.get('access-control-allow-origin');
+     const acac = res.headers.get('access-control-allow-credentials');
+     log('Status: '+res.status+' ACAO: '+acao+' ACAC: '+acac);
+     if(acao){
+       const txt = await res.text();
+       log('Body len: '+txt.length+' Preview: '+txt.substring(0,400));
+       if((acao==='*' || acao===location.origin) && txt.length>0){
+         log('>>> POTENTIAL HIGH: '+url+' returns data cross-origin! <<<');
+       }
+     } else {
+       log('No ACAO header on GET - safe / not vuln');
+     }
+   }catch(e){
+     log('Error: '+e.message);
+     // try without creds
+     try{
+       const res2 = await fetch(url, {method:'GET', mode:'cors'});
+       log('Retry without creds: Status '+res2.status+' ACAO: '+res2.headers.get('access-control-allow-origin'));
+       const txt2 = await res2.text();
+       if(txt2.length>0) log('Body preview no-creds: '+txt2.substring(0,300));
+     }catch(e2){ log('Both failed: '+e2.message); }
+   }
+ }
+ log('\n=== HUNT DONE === Copy this log for report');
+}
+</script>
+</body>
+</html>

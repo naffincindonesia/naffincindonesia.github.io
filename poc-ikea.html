@@ -1,49 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>IKEA CORS PoC v2 - naffinc</title>
-<style>body{background:#0f0f0f;color:#0f0;font-family:monospace;padding:20px}.box{max-width:900px;margin:auto;background:#1a1a1a;padding:20px;border:1px solid #333;border-radius:8px}button{background:#0058a3;color:#fff;border:none;padding:10px 18px;border-radius:4px;margin:5px;cursor:pointer}pre{background:#000;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:500px;overflow:auto}</style>
+<title>IKEA CORS PoC v3 - naffinc</title>
+<style>body{background:#0f0f0f;color:#0f0;font-family:monospace;padding:20px}.box{max-width:900px;margin:auto;background:#1a1a1a;padding:20px;border:1px solid #333;border-radius:8px}button{background:#0058a3;color:#fff;border:none;padding:10px 18px;border-radius:4px;margin:5px;cursor:pointer}pre{background:#000;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:600px;overflow:auto}.warn{color:#ffcc00}.cmd{background:#222;border:1px dashed #555;padding:10px;margin-top:10px;color:#fff}</style>
 </head>
 <body>
 <div class="box">
-<h2 style="color:#ffcc00">IKEA CORS PoC v2 - naffinc</h2>
+<h2 style="color:#ffcc00">IKEA CORS PoC v3 - naffinc</h2>
 <p>Target: self-service-portal-api-prod.azurewebsites.net</p>
-<p>GitHub: naffincindonesia.github.io/poc-ikea.html</p>
-<button onclick="scan()">Scan All Endpoints</button>
-<pre id="log">Ready. Click Scan All Endpoints.
-SOP same as Klaviyo final-test-123 - no evil.com</pre>
+<p>GitHub: naffincindonesia.github.io/poc-ikea.html - SOP same as Klaviyo final-test-123</p>
+<button onclick="scan()">Scan All Endpoints (Browser)</button>
+<button onclick="showCurl()">Show CURL Repro Guide</button>
+<pre id="log">Ready. 
+1. Click Scan All Endpoints for browser test
+2. Click Show CURL Repro Guide for terminal test</pre>
 </div>
 <script>
 const base = 'https://self-service-portal-api-prod.azurewebsites.net';
 const paths = ['/','/api','/api/health','/health','/swagger','/api-docs','/v1','/api/v1'];
 const logEl = document.getElementById('log');
-function log(m){ logEl.textContent += '\n' + m; console.log(m); }
+function log(m){ logEl.textContent += '\n' + m; }
 
 async function scan(){
- logEl.textContent = 'Starting scan from origin: '+location.origin+'\n';
+ logEl.textContent = 'Starting BROWSER scan from: '+location.origin+'\nThis will ALWAYS show Fetch Error for this target - that is expected!\n';
  for(let p of paths){
    const url = base + p;
    log('\n--- Testing: ' + url + ' ---');
    try{
      const res = await fetch(url, {method:'GET', mode:'cors'});
-     log('Status: ' + res.status);
-     log('ACAO: ' + res.headers.get('access-control-allow-origin'));
-     const txt = await res.text();
-     log('Body len: ' + txt.length + ' | Preview: ' + txt.substring(0,300));
-     if(res.headers.get('access-control-allow-origin') === '*'){
-        log('>>> VULN CONFIRMED on ' + p + ' <<<');
-     }
+     log('UNEXPECTED SUCCESS: Status ' + res.status + ' ACAO: ' + res.headers.get('access-control-allow-origin'));
    }catch(e){
-     log('Fetch CORS Error: ' + e.message + ' - Trying with no-cors to check if alive...');
+     log('Fetch CORS Error: ' + e.message);
+     log('-> Trying no-cors to prove server alive...');
      try{
-       const res2 = await fetch(url, {method:'GET', mode:'no-cors'});
-       log('no-cors status: opaque (server alive, but CORS blocks read) -> This proves misconfig on HEAD but not GET');
-     }catch(e2){
-       log('Dead endpoint: ' + e2.message);
-     }
+       await fetch(url, {method:'GET', mode:'no-cors'});
+       log('Result: opaque - SERVER ALIVE but CORS header not returned on GET');
+       log('Conclusion: Not exploitable via browser fetch (HEAD only misconfig)');
+     }catch(e2){ log('Dead: ' + e2.message); }
    }
  }
- log('\n--- CURL REPRO (for report) ---\n curl -i -H "Origin: https://naffincindonesia.github.io" ' + base + '/api');
+ log('\n--- END BROWSER SCAN ---\nNow click "Show CURL Repro Guide" for HEAD test');
+}
+
+function showCurl(){
+ logEl.textContent += '\n\n========== CURL REPRO - RUN IN YOUR TERMINAL ==========\n';
+ logEl.textContent += 'Copy-paste these 2 commands in your terminal (like your 6/8 screenshot):\n\n';
+ logEl.textContent += '#1 - HEAD request (WILL show ACAO: * - this is the bug)\n';
+ logEl.textContent += 'curl -i -X HEAD -H "Origin: https://naffincindonesia.github.io" https://self-service-portal-api-prod.azurewebsites.net/\n\n';
+ logEl.textContent += '#2 - GET request (WILL NOT show ACAO: * - proves not exploitable via browser)\n';
+ logEl.textContent += 'curl -i -H "Origin: https://naffincindonesia.github.io" https://self-service-portal-api-prod.azurewebsites.net/\n\n';
+ logEl.textContent += 'Expected:\n HEAD => Access-Control-Allow-Origin: * (VULN)\n GET => No ACAO header (SAFE for browser)\n\n';
+ logEl.textContent += 'Use screenshot from #1 for your report.';
 }
 </script>
 </body>

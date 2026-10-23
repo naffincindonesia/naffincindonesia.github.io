@@ -1,6 +1,6 @@
 # NAFFINC — naffincindonesia.github.io
 
-![Naffinc Banner](banner-dojo-level1.png)
+![Naffinc Banner](image.jpg)
 
 ## 🔥 YesWeHack — DOJO LEVEL 1 UNLOCKED
 **Achieved:** 2026-10-21 | **Points:** 97 | **Reports:** 4 | **Rank:** 10291
@@ -14,6 +14,6 @@
 `Content-Type: multipart/form-data; boundary*0=bundle456; boundary=edge123`
 
 ### Skills
-Cyber Security • Web Application Security • API Security • OWASP Top 10 • Reconnaissance
+Cyber Security • Web App Security • API Security • OWASP Top 10 • Recon
 
 **Links:** [YesWeHack](https://yeswehack.com/hunters/naffinc) | [Website](https://naffincindonesia.github.io) | Indonesia 🇮🇩

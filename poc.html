@@ -5,75 +5,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>POC - naffincindonesia.github.io</title>
 <style>
-body {
-  background: #000;
-  color: #e0e0e0;
-  font-family: "Courier New", Courier, monospace;
-  margin: 0;
-  padding: 15px;
-}
-.container {
-  border: 2px solid #00ff00;
-  padding: 15px;
-  max-width: 800px;
-  margin: auto;
-  box-shadow: 0 0 15px rgba(0,255,0,0.3);
-}
-.header {
-  color: #00ff00;
-  font-weight: bold;
-  font-size: 18px;
-  margin-bottom: 5px;
-}
-.sub-url {
-  color: #888;
-  font-size: 12px;
-  word-break: break-all;
-  margin-bottom: 15px;
-}
-.severity-box {
-  padding: 10px 12px;
-  font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 15px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.low { background: #00ff00; color: #000; }
-.medium { background: #ff8c00; color: #000; }
-.high { background: #ffff00; color: #000; }
-.critical { background: #ff0000; color: #fff; animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity: 0.6; } }
-.desc {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #ccc;
-  margin-bottom: 15px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.url-line {
-  font-size: 12px;
-  color: #00ff00;
-  word-break: break-all;
-  margin-bottom: 20px;
-}
+body { background:#0a0a0a; color:#d0d0d0; font-family:Consolas,monospace; margin:0; padding:12px; }
+.box { border:1px solid #00ff00; max-width:800px; margin:auto; padding:16px; background:#111; }
+.head { color:#00ff00; font-weight:bold; font-size:18px; }
+.url-small { color:#888; font-size:11px; word-break:break-all; margin:4px 0 14px 0; }
+.sev { padding:10px; font-weight:bold; font-size:15px; margin-bottom:14px; border-radius:3px; }
+.sev-low { background:#00ff00; color:#000; }
+.sev-medium { background:#ff8c00; color:#000; }
+.sev-high { background:#ffd700; color:#000; }
+.sev-critical { background:#ff0000; color:#fff; }
+.desc { font-size:13px; line-height:1.6; color:#bbb; white-space:pre-wrap; word-break:break-word; }
+.url-foot { color:#00ff00; font-size:12px; word-break:break-all; margin-top:12px; }
+/* FOOTER FIX - INI YANG KEMARIN KURANG JELAS */
 .footer {
-  color: #00ff00 !important;
-  opacity: 1 !important;
-  font-weight: bold;
-  text-shadow: 0 0 8px #00ff00;
-  font-size: 12px;
-  letter-spacing: 0.8px;
-  border-top: 1px solid #003300;
-  padding-top: 12px;
-  margin-top: 10px;
-  text-align: center;
+  margin-top:18px;
+  padding-top:10px;
+  border-top:1px solid #333;
+  color:#ffffff !important;
+  font-size:12px;
+  font-weight:700;
+  opacity:1 !important;
+  text-align:center;
+  letter-spacing:0.3px;
 }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">🔒 POC - naffincindonesia.github.io</div>
-  <div class="sub-url" id="subUrl">https://naffincindonesia.github.io/poc.html</div>
-  <div class="
+<div class="box">
+<div class="head">🔒 POC - naffincindonesia.github.io</div>
+<div class="url-small" id="u1"></div>
+<div class="sev sev-low" id="sev">LOW - Simple Open Redirect Only</div>
+<div class="desc" id="desc"></div>
+<div class="url-foot" id="u2"></div>
+<div class="footer">For bug bounty POC only - Ethical Hacker ©2026 Naff Inc.</div>
+</div>
+<script>
+var href = location.href;
+var q = location.search.toLowerCase();
+document.getElementById('u1').textContent = href;
+document.getElementById('u2').textContent = 'URL: ' + href;
+var sevEl = document.getElementById('sev');
+var descEl = document.getElementById('desc');
+var t='', d='';
+if(q.includes('code=')){
+  sevEl.className='sev sev-critical';
+  sevEl.textContent='CRITICAL - OAuth CODE Leak = ATO';
+  d='CRITICAL - OAuth CODE Leak = ATO\nLeaks OAuth code to naffincindonesia.github.io.\nAttacker exchanges code -> access_token -> Account Takeover.\n\nImpact: Full ATO\nProof: ?code= in URL';
+} else if(q.includes('token=')||q.includes('jwt=')||q.includes('session=')||q.includes('access_token=')||q.includes('id_token=')){
+  sevEl.className='sev sev-high';
+  sevEl.textContent='HIGH - Sensitive Token Leak';
+  d='HIGH - Sensitive Token Leak\nToken/JWT/Session leaked to external domain.\n\nImpact: Session Hijack / ATO';
+} else if(q.includes('email=')||q.includes('name=')||q.includes('phone=')||q.includes('pii=')){
+  sevEl.className='sev sev-medium';
+  sevEl.textContent='MEDIUM - PII Leak via Open Redirect';
+  d='MEDIUM - PII Leak\nEmail/PII leaked to external domain.\n\nImpact: Privacy violation';
+} else {
+  sevEl.className='sev sev-low';
+  sevEl.textContent='LOW - Simple Open Redirect Only';
+  d='LOW - Simple Open Redirect Only\nNo sensitive params leaked.\nRedirects to safe domain naffincindonesia.github.io.\n\nRecommendation: Do NOT report as High unless chained with OAuth/token leak.';
+}
+descEl.textContent = d + '\n\nURL: ' + href;
+</script>
+</body>
+</html>

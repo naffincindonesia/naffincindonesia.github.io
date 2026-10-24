@@ -1,20 +1,27 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>POC - Naffin</title>
-<style>body{background:#0f0f0f;color:#00ff00;font-family:monospace;padding:40px}.box{border:2px solid #00ff00;padding:20px;max-width:700px}</style>
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>POC Naffin - Auto Severity</title>
+<style>body{background:#000;color:#0f0;font-family:monospace;padding:25px}.box{border:2px solid #0f0;padding:20px;max-width:850px;word-break:break-all}.LOW{background:#0f0;color:#000;padding:12px}.MEDIUM{background:#ff9900;color:#000;padding:12px}.HIGH{background:#ffff00;color:#000;padding:12px}.CRITICAL{background:#ff0000;color:#fff;padding:12px;animation:blink 1s infinite}@keyframes blink{50%{opacity:.5}}</style>
 </head><body><div class="box">
-<h1>🔓 POC - naffincindonesia.github.io</h1>
-<p><b>Redirect OK</b></p>
-<p id="data">Checking for leaked params...</p>
-<code id="url"></code>
+<h2>🔓 POC - naffincindonesia.github.io</h2>
+<p id="u" style="color:#888;font-size:12px"></p>
+<div id="s" style="font-weight:bold;font-size:20px;margin-top:15px">Checking...</div>
+<pre id="d" style="color:#fff;white-space:pre-wrap;margin-top:15px"></pre>
 <script>
-document.getElementById('url').innerText=location.href;
-const p=new URLSearchParams(location.search);
-if(p.toString()){
-  document.getElementById('data').innerHTML="<b style='color:#ff0'>LEAKED DATA DETECTED:</b><br>"+p.toString();
-  document.getElementById('data').style.border="2px solid yellow";
-  document.getElementById('data').style.padding="10px";
+const full=location.href; document.getElementById('u').innerText=full;
+const q=full.toLowerCase(); let level="", text="";
+if(q.includes("code=") && q.includes("poc.html")){
+ level="CRITICAL"; text="CRITICAL - OAuth CODE Leak = ATO\n\nThe vulnerable URL leaks OAuth authorization code to external domain (naffincindonesia.github.io).\nAttacker can exchange code for access_token and take over victim account.\n\nImpact: Full Account Takeover\nProof: code= parameter visible in URL above";
+} else if(q.includes("access_token=") || q.includes("id_token=") || q.includes("client_secret=")){
+ level="CRITICAL"; text="CRITICAL - Access Token / Secret Leak\n\nDirect token leak to external domain.\nImpact: Immediate Account Takeover";
+} else if(q.includes("token=") || q.includes("jwt=") || q.includes("session=") || q.includes("auth=")){
+ level="HIGH"; text="HIGH - Sensitive Token Leak\n\nSession/JWT token leaked to external domain.\nImpact: Session Hijacking / Account Takeover\nProof: "+location.search;
+} else if(q.includes("email=") || q.includes("phone=") || q.includes("api_key=")){
+ level="MEDIUM"; text="MEDIUM - PII / API Key Leak\n\nSensitive user data leaked to external domain.";
+} else if(location.search.length>1){
+ level="MEDIUM"; text="MEDIUM - Open Redirect with Param Reflection\n\nRedirect reflects arbitrary params. Potential for token leak if chained with OAuth flow.\nProof: "+location.search;
 } else {
-  document.getElementById('data').innerText="No params - This is Low severity Open Redirect";
+ level="LOW"; text="LOW - Simple Open Redirect Only\n\nNo params leaked. Redirects to safe external domain (naffincindonesia.github.io).\nDo NOT report as High unless chained with OAuth/token leak.\nRecommendation: Skip or chain with other bug.";
 }
+let el=document.getElementById('s'); el.className=level; el.innerText=level+" - "+text.split('\n')[0];
+document.getElementById('d').innerText=text+"\n\nURL: "+full;
 </script>
-<p style="font-size:10px;margin-top:20px">For bug bounty POC only - Ethical Hacker / Security Researcher</p>
-</div></body></html>
+<p style="font-size:10px;color:#555;margin-top:25px">For bug bounty POC only - Ethical Hacker Naffin - na

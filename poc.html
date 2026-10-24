@@ -1,41 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>naffinc - Ethical Hacker</title>
-<style>
-  body { background:#0a0a0a; color:#e0e0e0; font-family:"Courier New", monospace; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
-  .box { border:1px solid #2a2a2a; padding:50px 40px; max-width:700px; width:90%; text-align:center; }
-  h1 { color:#00ff41; letter-spacing:8px; text-shadow:0 0 12px #00ff41; margin:0 0 10px; font-size:34px; }
-  .sub { color:#888; font-style:italic; margin-bottom:30px; font-size:14px; }
-  .quote { border-left:3px solid #00ff41; background:#151515; padding:14px 18px; text-align:left; margin:22px 0; }
-  .desc { font-size:13px; line-height:1.6; }
-  .small { color:#666; font-size:11px; margin-top:10px; }
-  .poc { color:#ffeb3b; font-weight:bold; margin:25px 0 18px; font-size:14px; }
-  .platforms { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:25px 0 10px; }
-  .badge { border:1px solid #333; padding:9px 16px; font-size:12px; text-decoration:none; color:#00ff41; background:#111; letter-spacing:1px; }
-  .badge:hover { background:#00ff41; color:#000; box-shadow:0 0 10px #00ff41; }
-  .footer { color:#666; font-size:11px; margin-top:22px; line-height:1.6; }
-</style>
-</head>
-<body>
-  <div class="box">
-    <h1>naffinc</h1>
-    <div class="sub">Ethical Hacker | Security Researcher</div>
-    <div class="quote">"Prioritizing Quality, Rewards Come Second."</div>
-    <div class="desc">This page is used for security testing purposes only as a safe external redirect destination to demonstrate Open Redirect vulnerabilities.</div>
-    <div class="small">No malicious content. No data collection. For responsible disclosure demonstration.</div>
-    <div class="poc">[ Proof of Concept - naffincindonesia.github.io ]</div>
-    <div class="platforms">
-<a class="badge" href="https://hackerone.com/naffinc" target="_blank">HackerOne</a>
-<a class="badge" href="https://yeswehack.com/hunters/naffinc" target="_blank">YesWeHack</a>
-<a class="badge" href="https://bugcrowd.com/h/naffinc" target="_blank">Bugcrowd</a>
-    </div>
-    <div class="footer">
-      Contact: via HackerOne / YesWeHack / Bugcrowd<br>
-      &copy; 2026 naffinc - Bug Bounty Hunter | Naff Inc - Incorporation
-    </div>
-  </div>
-</body>
-</html>
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>POC - Naffin</title>
+<style>body{background:#0f0f0f;color:#00ff00;font-family:monospace;padding:40px}.box{border:2px solid #00ff00;padding:20px;max-width:700px}</style>
+</head><body><div class="box">
+<h1>🔓 POC - naffincindonesia.github.io</h1>
+<p><b>Redirect OK</b></p>
+<p id="data">Checking for leaked params...</p>
+<code id="url"></code>
+<script>
+document.getElementById('url').innerText=location.href;
+const p=new URLSearchParams(location.search);
+if(p.toString()){
+  document.getElementById('data').innerHTML="<b style='color:#ff0'>LEAKED DATA DETECTED:</b><br>"+p.toString();
+  document.getElementById('data').style.border="2px solid yellow";
+  document.getElementById('data').style.padding="10px";
+} else {
+  document.getElementById('data').innerText="No params - This is Low severity Open Redirect";
+}
+</script>
+<p style="font-size:10px;margin-top:20px">For bug bounty POC only - Ethical Hacker / Security Researcher</p>
+</div></body></html>

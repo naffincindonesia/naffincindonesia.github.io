@@ -1,60 +1,34 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Naffinc PoC - GovTech VDP Checker</title>
+<title>PoC by Naffinc</title>
 <style>
-  body { font-family: monospace; text-align: center; padding: 50px; background: #111; color: white; transition: 0.5s; }
-  .box { padding: 30px; border-radius: 15px; margin: 20px auto; max-width: 600px; font-size: 24px; font-weight: bold; }
-  .low { background: #22c55e; color: black; } /* hijau */
-  .medium { background: #f97316; color: white; } /* orange */
-  .high { background: #eab308; color: black; } /* kuning */
-  .critical { background: #ef4444; color: white; animation: blink 0.5s infinite; } /* merah */
-  @keyframes blink { 50% { opacity: 0.5; } }
-  code { background: #222; padding: 5px 10px; border-radius: 5px; display: block; margin: 10px; word-break: break-all; }
+body { font-family: Arial; text-align: center; margin-top: 80px; }
+.box { width: 300px; padding: 20px; margin: auto; border-radius: 8px; color: white; font-weight: bold; font-size: 20px; }
+.low { background: #28a745; }
+.medium { background: #fd7e14; }
+.high { background: #ffc107; color: black; }
+.critical { background: #dc3545; }
 </style>
 </head>
-<body id="body">
-  <h1>Naffinc VDP PoC</h1>
-  <div id="result" class="box">Menunggu parameter...</div>
-  <p>Target: <code id="target">-</code></p>
-  <p>Teknik: <code id="tech">-</code></p>
-  <p>Timestamp: <code id="time">-</code></p>
-  <p style="font-size: 12px; margin-top: 40px;">naffinc@kali:~$ | YesWeHack | GovTech Singapore VDP | Dojo Level 1</p>
-
+<body>
+<h3>PoC - Naffinc</h3>
+<div id="poc"></div>
 <script>
-const params = new URLSearchParams(window.location.search);
-const color = params.get('color') || 'low';
-const target = params.get('target') || 'N/A';
-const tech = params.get('tech') || 'N/A';
-
-const resultEl = document.getElementById('result');
-const body = document.getElementById('body');
-
-document.getElementById('target').innerText = target;
-document.getElementById('tech').innerText = tech;
-document.getElementById('time').innerText = new Date().toISOString();
-
-let text = '';
-if (color === 'green' || color === 'low') {
-  resultEl.className = 'box low';
-  text = '🟢 LOW - Valid tapi low impact';
-  body.style.background = '#052e16';
-} else if (color === 'orange' || color === 'medium') {
-  resultEl.className = 'box medium';
-  text = '🟠 MEDIUM - Open Redirect / Info Disclosure Terkonfirmasi';
-  body.style.background = '#431407';
-} else if (color === 'yellow' || color === 'high') {
-  resultEl.className = 'box high';
-  text = '🟡 HIGH - Host Header Bypass / Auth Bypass Terkonfirmasi';
-  body.style.background = '#422006';
-} else if (color === 'red' || color === 'critical') {
-  resultEl.className = 'box critical';
-  text = '🔴 CRITICAL - Split Decision / Boundary Bypass Terkonfirmasi! Teknik 9.3 #YWH-PGM2123-6403';
-  body.style.background = '#450a0a';
+let p = new URLSearchParams(location.search);
+let type = p.get('type') || 'low';
+let el = document.getElementById('poc');
+if(type == 'low'){
+  el.innerHTML = '<div class="box low">LOW</div>';
+} else if(type == 'medium'){
+  el.innerHTML = '<div class="box medium">MEDIUM</div>';
+} else if(type == 'high'){
+  el.innerHTML = '<div class="box high">HIGH</div>';
+} else if(type == 'critical'){
+  el.innerHTML = '<div class="box critical">CRITICAL</div>';
 }
-resultEl.innerText = text;
 </script>
+<p id="url"></p>
+<script>document.getElementById('url').innerText = location.href;</script>
 </body>
 </html>

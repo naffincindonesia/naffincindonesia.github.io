@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POC - naffincindonesia.github.io</title>
+<title>Naffinc PoC - GovTech VDP Checker</title>
 <style>
-body{background:#000;color:#e0e0e0;font-family:"Courier New",Courier,monospace;margin:0;padding:12px;}
-.container{border:2px solid #00ff00;padding:14px;max-width:850px;margin:auto;box-shadow:0 0 15px rgba(0,255,0,0.25);}
-.header{color:#00ff00;font-weight:bold;font-size:18px;}
-.sub-url{color:#777;font-size:11px;word-break:break-all;margin:6px 0 12px 0;}
-.severity-box{padding:12px;font-weight:900;font-size:15px;border-radius:4px;margin-bottom:14px;text-transform:uppercase;}
-.low{background:#00ff00;color:#000;}
-.medium{background:#ff8c00;color:#000;}
-.high{background:#ffeb00;color:#000;}
-.critical{background:#ff0000;color:#fff;animation:blink 0.8s infinite;border:2px solid #fff;}
-@keyframes blink{50%{opacity:0.5;}}
-.desc{font-size:13px;line-height:1.6;color:#ccc;white-space:pre-wrap;word-break:break-word;margin-bottom:16px;}
-.url-line{font-size:12px;color:#00ff00;word-break:break-all;background:#001100;padding:8px;border:1px dashed #00ff00;margin-bottom:14px;}
-.footer{color:#FFFFFF !important;opacity:1 !important;font-weight:900 !important;font-size:13px !important;text-align:center;border-top:1px solid #222;padding-top:12px;margin-top:10px;}
+  body { font-family: monospace; text-align: center; padding: 50px; background: #111; color: white; transition: 0.5s; }
+  .box { padding: 30px; border-radius: 15px; margin: 20px auto; max-width: 600px; font-size: 24px; font-weight: bold; }
+  .low { background: #22c55e; color: black; } /* hijau */
+  .medium { background: #f97316; color: white; } /* orange */
+  .high { background: #eab308; color: black; } /* kuning */
+  .critical { background: #ef4444; color: white; animation: blink 0.5s infinite; } /* merah */
+  @keyframes blink { 50% { opacity: 0.5; } }
+  code { background: #222; padding: 5px 10px; border-radius: 5px; display: block; margin: 10px; word-break: break-all; }
 </style>
 </head>
-<body>
-<div class="container">
-<div class="header">🔒 POC - naffincindonesia.github.io</div>
-<div class="sub-url" id="subUrl"></div>
-<div class="severity-box low" id="sevBox">LOW</div>
-<div class="desc" id="descBox"></div>
-<div class="url-line" id="urlLine"></div>
-<div class="footer">For bug bounty POC only - Ethical Hacker ©2026 Naff Inc.</div>
-</div>
+<body id="body">
+  <h1>Naffinc VDP PoC</h1>
+  <div id="result" class="box">Menunggu parameter...</div>
+  <p>Target: <code id="target">-</code></p>
+  <p>Teknik: <code id="tech">-</code></p>
+  <p>Timestamp: <code id="time">-</code></p>
+  <p style="font-size: 12px; margin-top: 40px;">naffinc@kali:~$ | YesWeHack | GovTech Singapore VDP | Dojo Level 1</p>
+
 <script>
-(function(){
- const url = window.location.href;
- const p = url.toLowerCase();
- document.getElementById('subUrl').textContent = url;
- document.getElementById('urlLine').textContent = 'URL: ' + url;
- const sevBox = document.getElementById('sevBox');
- const descBox = document.getElementById('descBox');
- let title, desc, cls;
- if (p.includes('code=') || p.includes('client_secret')) {
-   cls='critical'; title='CRITICAL - OAuth CODE Leak = ATO';
-   desc='CRITICAL - OAuth CODE Leak = ATO\n\nThe vulnerable endpoint leaks OAuth authorization code to external domain (naffincindonesia.github.io). Attacker can exchange code for access_token and takeover account.\n\nImpact: Full Account Takeover\nProof: ?code= leaked to external domain in URL below.';
- } else if (p.includes('access_token=') || p.includes('id_token=') || p.includes('token=') || p.includes('jwt=') || p.includes('session=')) {
-   cls='high'; title='HIGH - Sensitive Token Leak';
-   desc='HIGH - Sensitive Token / Session Leak\n\nJWT/Session/Access Token leaked to external domain.\nImpact: Session Hijacking / ATO\nProof: token/session in URL';
- } else if (p.includes('email=') || p.includes('phone=') || p.includes('name=') || p.includes('pii=')) {
-   cls='medium'; title='MEDIUM - PII Leak via Open Redirect';
-   desc='MEDIUM - PII Leak\n\nEmail/phone/name leaked to external domain.\nImpact: Privacy Violation\nProof: PII param visible';
- } else {
-   cls='low'; title='LOW - Simple Open Redirect Only';
-   desc='LOW - Simple Open Redirect Only\n\nNo sensitive params leaked. Redirects to safe domain naffincindonesia.github.io.\nDo NOT report as High unless chained with OAuth/token leak.';
- }
- sevBox.className='severity-box '+cls;
- sevBox.textContent=title;
- descBox.textContent=desc;
-})();
+const params = new URLSearchParams(window.location.search);
+const color = params.get('color') || 'low';
+const target = params.get('target') || 'N/A';
+const tech = params.get('tech') || 'N/A';
+
+const resultEl = document.getElementById('result');
+const body = document.getElementById('body');
+
+document.getElementById('target').innerText = target;
+document.getElementById('tech').innerText = tech;
+document.getElementById('time').innerText = new Date().toISOString();
+
+let text = '';
+if (color === 'green' || color === 'low') {
+  resultEl.className = 'box low';
+  text = '🟢 LOW - Valid tapi low impact';
+  body.style.background = '#052e16';
+} else if (color === 'orange' || color === 'medium') {
+  resultEl.className = 'box medium';
+  text = '🟠 MEDIUM - Open Redirect / Info Disclosure Terkonfirmasi';
+  body.style.background = '#431407';
+} else if (color === 'yellow' || color === 'high') {
+  resultEl.className = 'box high';
+  text = '🟡 HIGH - Host Header Bypass / Auth Bypass Terkonfirmasi';
+  body.style.background = '#422006';
+} else if (color === 'red' || color === 'critical') {
+  resultEl.className = 'box critical';
+  text = '🔴 CRITICAL - Split Decision / Boundary Bypass Terkonfirmasi! Teknik 9.3 #YWH-PGM2123-6403';
+  body.style.background = '#450a0a';
+}
+resultEl.innerText = text;
 </script>
 </body>
 </html>

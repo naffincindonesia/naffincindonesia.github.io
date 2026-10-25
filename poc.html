@@ -1,34 +1,61 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>PoC by Naffinc</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC - naffincindonesia.github.io</title>
 <style>
-body { font-family: Arial; text-align: center; margin-top: 80px; }
-.box { width: 300px; padding: 20px; margin: auto; border-radius: 8px; color: white; font-weight: bold; font-size: 20px; }
-.low { background: #28a745; }
-.medium { background: #fd7e14; }
-.high { background: #ffc107; color: black; }
-.critical { background: #dc3545; }
+body{background:#000;color:#e0e0e0;font-family:"Courier New",Courier,monospace;margin:0;padding:12px;}
+.container{border:2px solid #00ff00;padding:14px;max-width:850px;margin:auto;box-shadow:0 0 15px rgba(0,255,0,0.25);}
+.header{color:#00ff00;font-weight:bold;font-size:18px;}
+.sub-url{color:#777;font-size:11px;word-break:break-all;margin:6px 0 12px 0;}
+.severity-box{padding:12px;font-weight:900;font-size:15px;border-radius:4px;margin-bottom:14px;text-transform:uppercase;}
+.low{background:#00ff00;color:#000;}
+.medium{background:#ff8c00;color:#000;}
+.high{background:#ffeb00;color:#000;}
+.critical{background:#ff0000;color:#fff;animation:blink 0.8s infinite;border:2px solid #fff;}
+@keyframes blink{50%{opacity:0.5;}}
+.desc{font-size:13px;line-height:1.6;color:#ccc;white-space:pre-wrap;word-break:break-word;margin-bottom:16px;}
+.url-line{font-size:12px;color:#00ff00;word-break:break-all;background:#001100;padding:8px;border:1px dashed #00ff00;margin-bottom:14px;}
+.footer{color:#FFFFFF !important;opacity:1 !important;font-weight:900 !important;font-size:13px !important;text-align:center;border-top:1px solid #222;padding-top:12px;margin-top:10px;}
 </style>
 </head>
 <body>
-<h3>PoC - Naffinc</h3>
-<div id="poc"></div>
+<div class="container">
+<div class="header">🔒 POC - naffincindonesia.github.io</div>
+<div class="sub-url" id="subUrl"></div>
+<div class="severity-box low" id="sevBox">LOW</div>
+<div class="desc" id="descBox"></div>
+<div class="url-line" id="urlLine"></div>
+<div class="footer">For bug bounty POC only - Ethical Hacker ©2026 Naff Inc.</div>
+</div>
 <script>
-let p = new URLSearchParams(location.search);
-let type = p.get('type') || 'low';
-let el = document.getElementById('poc');
-if(type == 'low'){
-  el.innerHTML = '<div class="box low">LOW</div>';
-} else if(type == 'medium'){
-  el.innerHTML = '<div class="box medium">MEDIUM</div>';
-} else if(type == 'high'){
-  el.innerHTML = '<div class="box high">HIGH</div>';
-} else if(type == 'critical'){
-  el.innerHTML = '<div class="box critical">CRITICAL</div>';
-}
+(function(){
+ const url = window.location.href;
+ const p = url.toLowerCase();
+ document.getElementById('subUrl').textContent = url;
+ document.getElementById('urlLine').textContent = 'URL: ' + url;
+ const sevBox = document.getElementById('sevBox');
+ const descBox = document.getElementById('descBox');
+ let title, desc, cls;
+ if (p.includes('code=') || p.includes('client_secret')) {
+   cls='critical'; title='CRITICAL - OAuth CODE Leak = ATO';
+   desc='CRITICAL - OAuth CODE Leak = ATO\n\nThe vulnerable endpoint leaks OAuth authorization code to external domain (naffincindonesia.github.io). Attacker can exchange code for access_token and takeover account.\n\nImpact: Full Account Takeover\nProof: ?code= leaked to external domain in URL below.';
+ } else if (p.includes('access_token=') || p.includes('id_token=') || p.includes('token=') || p.includes('jwt=') || p.includes('session=')) {
+   cls='high'; title='HIGH - Sensitive Token Leak';
+   desc='HIGH - Sensitive Token / Session Leak\n\nJWT/Session/Access Token leaked to external domain.\nImpact: Session Hijacking / ATO\nProof: token/session in URL';
+ } else if (p.includes('email=') || p.includes('phone=') || p.includes('name=') || p.includes('pii=')) {
+   cls='medium'; title='MEDIUM - PII Leak via Open Redirect';
+   desc='MEDIUM - PII Leak\n\nEmail/phone/name leaked to external domain.\nImpact: Privacy Violation\nProof: PII param visible';
+ } else {
+   cls='low'; title='LOW - Simple Open Redirect Only';
+   desc='LOW - Simple Open Redirect Only\n\nNo sensitive params leaked. Redirects to safe domain naffincindonesia.github.io.\nDo NOT report as High unless chained with OAuth/token leak.';
+ }
+ sevBox.className='severity-box '+cls;
+ sevBox.textContent=title;
+ descBox.textContent=desc;
+})();
 </script>
-<p id="url"></p>
-<script>document.getElementById('url').innerText = location.href;</script>
 </body>
 </html>

@@ -1,24 +1,6 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NAFFINC | Rank 7207</title>
-<style>
-body{margin:0;background:#000;color:#00ff00;font-family:monospace;padding:20px}
-.container{max-width:900px;margin:0 auto;border:1px solid #00ff00;background:#0a0a0a}
-.banner img{width:100%;display:block;border-bottom:1px solid #00ff00}
-.term{padding:20px;line-height:1.6}
-.line{color:#00ff00} .cmd{color:#fff} .box{border:1px solid #00ff00;padding:15px;margin:15px 0;background:#001100}
-a{color:#00ff00}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="banner"><img src="banner-7207.png" alt="NAFFINC Banner"></div>
-<div class="term">
-<p><span class="line">root@naffinc:~#</span> <span class="cmd">whoami</span><br>> NAFFINC Indonesia 🇮🇩<br>> Bug Bounty Hunter | Cyber Security Researcher<br>> naffincindonesia.github.io</p>
-<div class="box">
+<div align="center">
+<img src="banner-7207.png" width="100%">
+</div>
 root@naffinc:~# cat /etc/yeswehack/stats<br><br>
 ┌──────────────────────────────────────────┐<br>
 │ DOJO LEVEL 1 UNLOCKED                    │<br>

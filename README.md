@@ -1,19 +1,14 @@
-# NAFFINC — naffincindonesia.github.io
+<div align="center">
 
-![Naffinc Banner](image.jpg)
+<img src="./banner-kali-7207.png" width="100%">
 
-## 🔥 YesWeHack — DOJO LEVEL 1 UNLOCKED
-**Achieved:** 2026-10-21 | **Points:** 97 | **Reports:** 4 | **Rank:** 10291
-**Hunter:** naffinc | **Challenge:** Dojo #55 - Split Decision [PWNED]
+</div>
 
-> Tweet: "I just pwned the Dojo #55 - Split Decision challenge on @YesWeHack! 🚀" — Oct 21, 2026
+<div style="background:#000000; color:#00ff00; padding:20px; border:1px solid #00ff00; font-family: monospace;">
 
-### 🐞 Finding
-**CVSS 9.3 Critical — CWE-639 IDOR**
-`POST /v1/support/bundles/preview`
-`Content-Type: multipart/form-data; boundary*0=bundle456; boundary=edge123`
+### <span style="color:#00ff00;">root@naffinc:~#</span> <span style="color:#fff;">whoami</span>
 
-### Skills
-Cyber Security • Web App Security • API Security • OWASP Top 10 • Recon
-
-**Links:** [YesWeHack](https://yeswehack.com/hunters/naffinc) | [Website](https://naffincindonesia.github.io) | Indonesia 🇮🇩
+```bash
+> NAFFINC Indonesia 🇮🇩
+> Bug Bounty Hunter | Cyber Security Researcher
+> naffincindonesia.github.io

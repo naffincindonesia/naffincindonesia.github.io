@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NAFFINC | Rank 7207</title>
+<title>NAFFINC | Redirect PoC</title>
 <style>
 body{margin:0;background:#000;color:#00ff00;font-family:monospace}
 .main{max-width:750px;margin:auto;border:1px solid #00ff00}
@@ -16,14 +16,26 @@ a{color:#00ff00}
 <body>
 <div class="main">
 <img src="banner-7207.png">
-<div class="term">naffinc@kali:~$ cat stats.txt
-<div class="box">DOJO LEVEL 1 UNLOCKED
-Points: 101 | Reports: 6 | Rank: 7207
-Was 10291 -> 7207
-Dojo #55 Split Decision PWNED</div>naffinc@kali:~$ cat finding.txt
-<div class="box">CVSS 9.3 IDOR - CWE-639
-POST /v1/support/bundles/preview</div>naffinc@kali:~$ ls links/
-<div class="box"><a href="https://yeswehack.com/hunters/naffinc">YesWeHack</a> | Indonesia</div>naffinc@kali:~$ █</div>
+<div class="term">naffinc@kali:~$ cat redirect_poc.txt
+<div class="box">REDIRECT SUCCESS
+Host: naffincindonesia.github.io
+This domain is used for Bug Bounty PoC
+instead of evil.com (banned)
+
+IDOR /v1/support/bundles/preview
+PoC by NAFFINC</div>naffinc@kali:~$ echo "Redirecting in 1s..."
+<div class="box" id="status">Waiting...</div>naffinc@kali:~$ █</div>
 </div>
+
+<script>
+// GANTI URL TUJUAN DISINI BUAT PoC LU
+// Misal buat buktiin redirect ke domain lu sendiri
+const TARGET = "https://yeswehack.com/hunters/naffinc";
+
+setTimeout(()=>{
+  document.getElementById('status').innerHTML = "Redirecting to -> " + TARGET;
+  window.location.href = TARGET;
+}, 1200);
+</script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <div align="center">
 <img src="banner-7207.png" width="100%">
 </div>
-root@naffinc:~# cat /etc/yeswehack/stats<br><br>
+naffinc@kali:~# cat /etc/yeswehack/stats<br><br>
 ┌──────────────────────────────────────────┐<br>
 │ DOJO LEVEL 1 UNLOCKED                    │<br>
 │ Points: 101 | Reports: 6 | Rank: 7207    │<br>

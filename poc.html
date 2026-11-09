@@ -6,20 +6,27 @@
 <title>Naff Inc - POC Proof</title>
 <style>
   body{font-family:Arial,sans-serif;background:#0f0f0f;color:#fff;padding:20px;text-align:center}
-  .box{max-width:650px;margin:auto;background:#1a1a1a;padding:25px;border-radius:15px;border:2px solid #333}
+  .box{max-width:680px;margin:auto;background:#1a1a1a;padding:25px;border-radius:15px;border:2px solid #333}
   .low{border-color:#22c55e;color:#22c55e}
   .medium{border-color:#f97316;color:#f97316}
   .high{border-color:#eab308;color:#eab308}
   .critical{border-color:#ef4444;color:#ef4444;animation:blink 0.8s infinite}
   @keyframes blink{0%,100%{box-shadow:0 0 0px #ef4444}50%{box-shadow:0 0 35px #ef4444}}
-  .badge{font-size:28px;font-weight:900;margin:10px 0}
+  .badge{font-size:26px;font-weight:900;margin:10px 0}
   .critical .badge{animation:blinkText 0.8s infinite}
   @keyframes blinkText{0%,100%{opacity:1}50%{opacity:0.4}}
-  pre{background:#000;padding:15px;border-radius:10px;text-align:left;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
-  button{background:#ef4444;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-weight:bold;cursor:pointer;font-size:16px;margin-top:15px}
-  .critical button{animation:blink 0.8s infinite}
+  pre{background:#000;padding:15px;border-radius:10px;text-align:left;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all;color:#fff}
+  button{border:none;padding:12px 18px;border-radius:10px;font-weight:bold;cursor:pointer;font-size:15px;margin:5px}
+  .btn-copy{background:#ef4444;color:#fff;width:100%;margin-top:15px}
+  .critical .btn-copy{animation:blink 0.8s infinite}
+  .btn-low{background:#22c55e;color:#fff}
+  .btn-med{background:#f97316;color:#fff}
+  .btn-high{background:#eab308;color:#000}
+  .btn-crit{background:#ef4444;color:#fff}
   .small{color:#aaa;font-size:12px;margin-top:15px}
   .ato{background:#ef4444;color:#fff;padding:10px;border-radius:10px;font-weight:900;margin:15px 0;font-size:18px;animation:blink 0.8s infinite}
+  .tests{margin-top:20px;border-top:1px solid #333;padding-top:15px}
+  .tests p{color:#aaa;font-size:13px}
 </style>
 </head>
 <body>
@@ -29,7 +36,16 @@
   <div id="ato"></div>
   <div id="desc"></div>
   <pre id="data"></pre>
-  <button onclick="copyPOC()">📋 COPY POC FOR REPORT</button>
+  <button class="btn-copy" onclick="copyPOC()">📋 COPY POC FOR REPORT</button>
+
+  <div class="tests">
+    <p>TEST 4 LEVEL - Klik untuk tes:</p>
+    <button class="btn-low" onclick="location.href='poc.html?next=https://naffincindonesia.github.io'">🟢 TEST LOW</button>
+    <button class="btn-med" onclick="location.href='poc.html?email=test@naffincindonesia.github.io'">🟠 TEST MEDIUM</button>
+    <button class="btn-high" onclick="location.href='poc.html?access_token=TEST123'">🟡 TEST HIGH</button>
+    <button class="btn-crit" onclick="location.href='poc.html?code=TEST123'">🔴 TEST CRITICAL</button>
+  </div>
+
   <div class="small">Proof of Concept - Open Redirect / Token Leak Detector<br>Target domain: naffincindonesia.github.io only</div>
 </div>
 <script>
@@ -38,19 +54,29 @@ const hashParams = new URLSearchParams(location.hash.replace('#',''));
 const all = {};
 params.forEach((v,k)=>all[k]=v);
 hashParams.forEach((v,k)=>all[k]=v);
+
+// ===== 4 LEVEL DETECTION =====
+// 1. LOW = DEFAULT, kalau tidak ada param sensitif
 let level='LOW', color='low', title='🟢 LOW - Open Redirect', desc='Only redirect detected. No sensitive data leaked.';
 let atoHtml='';
+
+// 4. CRITICAL = paling prioritas, dicek pertama
 if(all.code){
   level='CRITICAL'; color='critical'; title='🔴 CRITICAL - OAuth CODE Leak = ATO';
   desc='OAuth authorization code leaked to attacker domain. Code can be exchanged for access token = Full Account Takeover.';
   atoHtml='<div class="ato">⚠️ ACCOUNT TAKEOVER POSSIBLE ⚠️</div>';
-} else if(all.access_token || all.id_token || all.token || all.jwt || all.session){
+}
+// 3. HIGH = token / session bocor
+else if(all.access_token || all.id_token || all.token || all.jwt || all.session || all.sessionid){
   level='HIGH'; color='high'; title='🟡 HIGH - Token Leak';
   desc='Access token / session token leaked to attacker domain. Attacker can hijack session.';
-} else if(all.email || all.phone || all.name || all.user){
+}
+// 2. MEDIUM = PII bocor
+else if(all.email || all.phone || all.name || all.user || all.username){
   level='MEDIUM'; color='medium'; title='🟠 MEDIUM - PII Leak';
   desc='Personal data leaked via redirect.';
 }
+
 document.getElementById('box').classList.add(color);
 document.getElementById('badge').innerText=title;
 document.getElementById('desc').innerText=desc;
@@ -62,6 +88,7 @@ document.getElementById('data').innerText=
 `Referrer: ${document.referrer || 'none'}\n`+
 `Severity: ${level}\n`+
 `Leaked Params: ${JSON.stringify(all,null,2)}`;
+
 function copyPOC(){
   const text=document.getElementById('data').innerText;
   navigator.clipboard.writeText(text).then(()=>alert('POC Copied! Paste to report.'));

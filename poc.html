@@ -3,70 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>POC - naffincindonesia.github.io</title>
+<title>Naff Inc - POC Proof</title>
 <style>
-body{background:#000;color:#e0e0e0;font-family:"Courier New",Courier,monospace;margin:0;padding:12px;}
-.container{border:2px solid #00ff00;padding:14px;max-width:850px;margin:auto;box-shadow:0 0 15px rgba(0,255,0,0.25);}
-.header{color:#00ff00;font-weight:bold;font-size:18px;}
-.sub-url{color:#777;font-size:11px;word-break:break-all;margin:6px 0 12px 0;}
-.severity-box{padding:12px;font-weight:900;font-size:15px;border-radius:4px;margin-bottom:14px;text-transform:uppercase;}
-.low{background:#00ff00;color:#000;}
-.medium{background:#ff8c00;color:#000;}
-.high{background:#ffeb00;color:#000;}
-.critical{background:#ff0000;color:#fff;animation:blink 0.8s infinite;border:2px solid #fff;}
-@keyframes blink{50%{opacity:0.5;}}
-.desc{font-size:13px;line-height:1.6;color:#ccc;white-space:pre-wrap;word-break:break-word;margin-bottom:16px;}
-.url-line{font-size:12px;color:#00ff00;word-break:break-all;background:#001100;padding:8px;border:1px dashed #00ff00;margin-bottom:14px;}
-.meta{font-size:11px;color:#888;margin-bottom:14px;}
-.btn{background:#00ff00;color:#000;border:none;padding:10px 16px;font-family:inherit;font-weight:900;cursor:pointer;border-radius:4px;width:100%;margin-bottom:14px;}
-.btn:active{background:#fff;}
-.footer{color:#FFFFFF !important;opacity:1 !important;font-weight:900 !important;font-size:13px !important;text-align:center;border-top:1px solid #222;padding-top:12px;margin-top:10px;}
+  body{font-family:Arial,sans-serif;background:#0f0f0f;color:#fff;padding:20px;text-align:center}
+  .box{max-width:650px;margin:auto;background:#1a1a1a;padding:25px;border-radius:15px;border:2px solid #333}
+  .low{border-color:#22c55e;color:#22c55e}
+  .medium{border-color:#f97316;color:#f97316}
+  .high{border-color:#eab308;color:#eab308}
+  .critical{border-color:#ef4444;color:#ef4444;animation:blink 0.8s infinite}
+  @keyframes blink{0%,100%{box-shadow:0 0 0px #ef4444}50%{box-shadow:0 0 35px #ef4444}}
+  .badge{font-size:28px;font-weight:900;margin:10px 0}
+  .critical .badge{animation:blinkText 0.8s infinite}
+  @keyframes blinkText{0%,100%{opacity:1}50%{opacity:0.4}}
+  pre{background:#000;padding:15px;border-radius:10px;text-align:left;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
+  button{background:#ef4444;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-weight:bold;cursor:pointer;font-size:16px;margin-top:15px}
+  .critical button{animation:blink 0.8s infinite}
+  .small{color:#aaa;font-size:12px;margin-top:15px}
+  .ato{background:#ef4444;color:#fff;padding:10px;border-radius:10px;font-weight:900;margin:15px 0;font-size:18px;animation:blink 0.8s infinite}
 </style>
 </head>
 <body>
-<div class="container">
-<div class="header">🔒 POC - naffincindonesia.github.io</div>
-<div class="sub-url" id="subUrl"></div>
-<div class="meta" id="timeBox"></div>
-<div class="severity-box low" id="sevBox">LOW</div>
-<div class="desc" id="descBox"></div>
-<div class="url-line" id="urlLine"></div>
-<button class="btn" onclick="copyPOC()">📋 COPY POC FOR REPORT</button>
-<div class="footer">For bug bounty POC only - Ethical Hacker ©2026 Naff Inc.</div>
+<div class="box" id="box">
+  <div style="font-size:14px;letter-spacing:2px;color:#888">NAFF INC - SECURITY RESEARCH</div>
+  <div class="badge" id="badge">ANALYZING...</div>
+  <div id="ato"></div>
+  <div id="desc"></div>
+  <pre id="data"></pre>
+  <button onclick="copyPOC()">📋 COPY POC FOR REPORT</button>
+  <div class="small">Proof of Concept - Open Redirect / Token Leak Detector<br>Target domain: naffincindonesia.github.io only</div>
 </div>
 <script>
-(function(){
- const url = window.location.href;
- const p = url.toLowerCase();
- document.getElementById('subUrl').textContent = url;
- document.getElementById('urlLine').textContent = 'URL: ' + url;
- document.getElementById('timeBox').textContent = 'Captured: ' + new Date().toUTCString() + ' | User-Agent: ' + navigator.userAgent;
- const sevBox = document.getElementById('sevBox');
- const descBox = document.getElementById('descBox');
- let title, desc, cls;
- // v2: tambah auth_code & authorization_code
- if (p.includes('code=') || p.includes('authorization_code=') || p.includes('auth_code=') || p.includes('client_secret')) {
-   cls='critical'; title='CRITICAL - OAuth CODE Leak = ATO';
-   desc='CRITICAL - OAuth CODE Leak = ATO\n\nThe vulnerable endpoint leaks OAuth authorization code to external domain (naffincindonesia.github.io). Attacker can exchange code for access_token and takeover account.\n\nImpact: Full Account Takeover\nProof: ?code= / auth_code= leaked to external domain in URL below.';
- } else if (p.includes('access_token=') || p.includes('id_token=') || p.includes('token=') || p.includes('jwt=') || p.includes('session=') || p.includes('refresh_token=')) {
-   cls='high'; title='HIGH - Sensitive Token Leak';
-   desc='HIGH - Sensitive Token / Session Leak\n\nJWT/Session/Access Token leaked to external domain.\nImpact: Session Hijacking / ATO\nProof: token/session in URL';
- } else if (p.includes('email=') || p.includes('phone=') || p.includes('name=') || p.includes('pii=') || p.includes('password=')) {
-   cls='medium'; title='MEDIUM - PII Leak via Open Redirect';
-   desc='MEDIUM - PII Leak\n\nEmail/phone/name leaked to external domain.\nImpact: Privacy Violation\nProof: PII param visible';
- } else {
-   cls='low'; title='LOW - Simple Open Redirect Only';
-   desc='LOW - Simple Open Redirect Only\n\nNo sensitive params leaked. Redirects to safe domain naffincindonesia.github.io.\nDo NOT report as High unless chained with OAuth/token leak.';
- }
- sevBox.className='severity-box '+cls;
- sevBox.textContent=title;
- descBox.textContent=desc;
- window._pocText = title + '\n\n' + desc + '\n\nURL: ' + url + '\nCaptured: ' + new Date().toUTCString();
-})();
+const params = new URLSearchParams(location.search);
+const hashParams = new URLSearchParams(location.hash.replace('#',''));
+const all = {};
+params.forEach((v,k)=>all[k]=v);
+hashParams.forEach((v,k)=>all[k]=v);
+let level='LOW', color='low', title='🟢 LOW - Open Redirect', desc='Only redirect detected. No sensitive data leaked.';
+let atoHtml='';
+if(all.code){
+  level='CRITICAL'; color='critical'; title='🔴 CRITICAL - OAuth CODE Leak = ATO';
+  desc='OAuth authorization code leaked to attacker domain. Code can be exchanged for access token = Full Account Takeover.';
+  atoHtml='<div class="ato">⚠️ ACCOUNT TAKEOVER POSSIBLE ⚠️</div>';
+} else if(all.access_token || all.id_token || all.token || all.jwt || all.session){
+  level='HIGH'; color='high'; title='🟡 HIGH - Token Leak';
+  desc='Access token / session token leaked to attacker domain. Attacker can hijack session.';
+} else if(all.email || all.phone || all.name || all.user){
+  level='MEDIUM'; color='medium'; title='🟠 MEDIUM - PII Leak';
+  desc='Personal data leaked via redirect.';
+}
+document.getElementById('box').classList.add(color);
+document.getElementById('badge').innerText=title;
+document.getElementById('desc').innerText=desc;
+document.getElementById('ato').innerHTML=atoHtml;
+document.getElementById('data').innerText=
+`URL: ${location.href}\n`+
+`Timestamp: ${new Date().toISOString()}\n`+
+`User-Agent: ${navigator.userAgent}\n`+
+`Referrer: ${document.referrer || 'none'}\n`+
+`Severity: ${level}\n`+
+`Leaked Params: ${JSON.stringify(all,null,2)}`;
 function copyPOC(){
-  navigator.clipboard.writeText(window._pocText || location.href).then(()=>{
-    alert('POC copied! Tinggal paste ke laporan HackerOne.');
-  });
+  const text=document.getElementById('data').innerText;
+  navigator.clipboard.writeText(text).then(()=>alert('POC Copied! Paste to report.'));
 }
 </script>
 </body>

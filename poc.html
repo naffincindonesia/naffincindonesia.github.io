@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +17,9 @@ body{background:#000;color:#e0e0e0;font-family:"Courier New",Courier,monospace;m
 @keyframes blink{50%{opacity:0.5;}}
 .desc{font-size:13px;line-height:1.6;color:#ccc;white-space:pre-wrap;word-break:break-word;margin-bottom:16px;}
 .url-line{font-size:12px;color:#00ff00;word-break:break-all;background:#001100;padding:8px;border:1px dashed #00ff00;margin-bottom:14px;}
+.meta{font-size:11px;color:#888;margin-bottom:14px;}
+.btn{background:#00ff00;color:#000;border:none;padding:10px 16px;font-family:inherit;font-weight:900;cursor:pointer;border-radius:4px;width:100%;margin-bottom:14px;}
+.btn:active{background:#fff;}
 .footer{color:#FFFFFF !important;opacity:1 !important;font-weight:900 !important;font-size:13px !important;text-align:center;border-top:1px solid #222;padding-top:12px;margin-top:10px;}
 </style>
 </head>
@@ -25,9 +27,11 @@ body{background:#000;color:#e0e0e0;font-family:"Courier New",Courier,monospace;m
 <div class="container">
 <div class="header">🔒 POC - naffincindonesia.github.io</div>
 <div class="sub-url" id="subUrl"></div>
+<div class="meta" id="timeBox"></div>
 <div class="severity-box low" id="sevBox">LOW</div>
 <div class="desc" id="descBox"></div>
 <div class="url-line" id="urlLine"></div>
+<button class="btn" onclick="copyPOC()">📋 COPY POC FOR REPORT</button>
 <div class="footer">For bug bounty POC only - Ethical Hacker ©2026 Naff Inc.</div>
 </div>
 <script>
@@ -36,16 +40,18 @@ body{background:#000;color:#e0e0e0;font-family:"Courier New",Courier,monospace;m
  const p = url.toLowerCase();
  document.getElementById('subUrl').textContent = url;
  document.getElementById('urlLine').textContent = 'URL: ' + url;
+ document.getElementById('timeBox').textContent = 'Captured: ' + new Date().toUTCString() + ' | User-Agent: ' + navigator.userAgent;
  const sevBox = document.getElementById('sevBox');
  const descBox = document.getElementById('descBox');
  let title, desc, cls;
- if (p.includes('code=') || p.includes('client_secret')) {
+ // v2: tambah auth_code & authorization_code
+ if (p.includes('code=') || p.includes('authorization_code=') || p.includes('auth_code=') || p.includes('client_secret')) {
    cls='critical'; title='CRITICAL - OAuth CODE Leak = ATO';
-   desc='CRITICAL - OAuth CODE Leak = ATO\n\nThe vulnerable endpoint leaks OAuth authorization code to external domain (naffincindonesia.github.io). Attacker can exchange code for access_token and takeover account.\n\nImpact: Full Account Takeover\nProof: ?code= leaked to external domain in URL below.';
- } else if (p.includes('access_token=') || p.includes('id_token=') || p.includes('token=') || p.includes('jwt=') || p.includes('session=')) {
+   desc='CRITICAL - OAuth CODE Leak = ATO\n\nThe vulnerable endpoint leaks OAuth authorization code to external domain (naffincindonesia.github.io). Attacker can exchange code for access_token and takeover account.\n\nImpact: Full Account Takeover\nProof: ?code= / auth_code= leaked to external domain in URL below.';
+ } else if (p.includes('access_token=') || p.includes('id_token=') || p.includes('token=') || p.includes('jwt=') || p.includes('session=') || p.includes('refresh_token=')) {
    cls='high'; title='HIGH - Sensitive Token Leak';
    desc='HIGH - Sensitive Token / Session Leak\n\nJWT/Session/Access Token leaked to external domain.\nImpact: Session Hijacking / ATO\nProof: token/session in URL';
- } else if (p.includes('email=') || p.includes('phone=') || p.includes('name=') || p.includes('pii=')) {
+ } else if (p.includes('email=') || p.includes('phone=') || p.includes('name=') || p.includes('pii=') || p.includes('password=')) {
    cls='medium'; title='MEDIUM - PII Leak via Open Redirect';
    desc='MEDIUM - PII Leak\n\nEmail/phone/name leaked to external domain.\nImpact: Privacy Violation\nProof: PII param visible';
  } else {
@@ -55,7 +61,13 @@ body{background:#000;color:#e0e0e0;font-family:"Courier New",Courier,monospace;m
  sevBox.className='severity-box '+cls;
  sevBox.textContent=title;
  descBox.textContent=desc;
+ window._pocText = title + '\n\n' + desc + '\n\nURL: ' + url + '\nCaptured: ' + new Date().toUTCString();
 })();
+function copyPOC(){
+  navigator.clipboard.writeText(window._pocText || location.href).then(()=>{
+    alert('POC copied! Tinggal paste ke laporan HackerOne.');
+  });
+}
 </script>
 </body>
 </html>
